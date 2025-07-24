@@ -26,9 +26,18 @@ app.get("/purchasedcourse", (req, res) => {
   res.send("Purchased Course");
 });
 
+app.get("/profile", (req, res) => {
+  res.send("Profile");
+});
+
+app.get("/profile/settings", (req, res) => {
+  res.send("Profile Settings");
+});
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
+  console.log("http://localhost:3000");
 });
+
 
 
