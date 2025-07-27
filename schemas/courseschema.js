@@ -1,0 +1,29 @@
+import mongoose from 'mongoose';
+
+const courses = new mongoose.Schema({
+    
+    title: {
+        type: String,
+        require: true
+    },
+    desription: {
+        type: String,
+        require: true
+    },
+    price: {
+        type: Number,
+        require: true
+    },
+    imageURL: {
+        type: String,
+        require: true
+    },
+    creatorId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Admin',
+        require: true
+    }
+    
+})
+
+export default courses;
