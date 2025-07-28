@@ -7,28 +7,33 @@ import { insertSampleData } from "./schemas/insert.js";
 import dotenv from 'dotenv';
 
 dotenv.config();
-
-const app = express();
-
-app.use(express.json());
-
 const DB_URL = process.env.DB_URL;
 
-mongoose.connect(DB_URL)
-  .then(() => {
-    console.log("Connected to MongoDB");
-    
-    insertSampleData();
-  })
-  .catch(err => console.error("MongoDB connection error:", err));
+const app = express();
+app.use(express.json());
 
 app.use('/user', userRouter);
 app.use('/course', courseRouter);
 app.use('/admin', adminRouter);
 
-app.listen(3000, () => {
-  console.log("http://localhost:3000");
-});
+
+
+async function main(){
+  await mongoose.connect(DB_URL)
+  .then(() => {
+    app.listen(3000, () => {
+      console.log("http://localhost:3000");
+    });
+    console.log("Connected to MongoDB");
+    insertSampleData();
+  })
+  .catch(err => console.error("MongoDB connection error:", err));
+
+
+
+}
+
+main()
 
 
 
