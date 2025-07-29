@@ -17,7 +17,6 @@ app.use('/course', courseRouter);
 app.use('/admin', adminRouter);
 
 
-
 async function main(){
   await mongoose.connect(DB_URL)
   .then(() => {
@@ -28,9 +27,6 @@ async function main(){
     insertSampleData();
   })
   .catch(err => console.error("MongoDB connection error:", err));
-
-
-
 }
 
 main()
