@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const purchases = new mongoose.Schema({
+const purchaseSchema = new mongoose.Schema({
     
     courseId:{
         type: mongoose.Schema.Types.ObjectId,
@@ -15,5 +15,7 @@ const purchases = new mongoose.Schema({
     }
     
 });
+
+const purchases = mongoose.model('Purchase', purchaseSchema);
 
 export default purchases;

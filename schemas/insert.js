@@ -1,15 +1,10 @@
 import mongoose from 'mongoose';
 
-// Import schemas
-import users from "./userschema.js";
-import courses from "./courseschema.js";
-import admins from "./adminschema.js";
-import purchases from "./purchaseschema.js";
-
-const User = mongoose.model('User', users);
-const Course = mongoose.model('Course', courses);
-const Admin = mongoose.model('Admin', admins);
-const Purchase = mongoose.model('Purchase', purchases);
+// Import models (these are now actual models, not schemas)
+import User from "./userschema.js";
+import Course from "./courseschema.js";
+import Admin from "./adminschema.js";
+import Purchase from "./purchaseschema.js";
 
 export async function insertSampleData() {
     try {
