@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import admins from "../schemas/adminschema.js";
+import adminMiddleware from "../middlewares/admin.js";
+import courses from "../schemas/courseschema.js";
 
 dotenv.config();
 const secretKey = process.env.SECRET_KEY;
@@ -64,14 +66,14 @@ const schema = z.object({
     return;
   }else{
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const newUser = new admins({
+    const newAdmin = new admins({
       email: req.body.email,
       password: hashedPassword,
       firstname: req.body.firstname,
       lastname: req.body.lastname,
     });
 
-    const savedUser = newUser.save();
+    const savedAdmin = await newAdmin.save();
     res.status(200).json({
       status: 200,
       message: "User created successfully",
@@ -79,20 +81,71 @@ const schema = z.object({
   }
 });
 
-adminRouter.get("/", (req, res) => {
-  res.send("Admin dashboard");
+adminRouter.post("/course", adminMiddleware, async (req, res) => {
+  const adminId = req.admin_id;
+  const title = req.body.title;
+  const description = req.body.description;
+  const price = req.body.price;
+  const imageUrl = req.body.imageUrl;
+
+  const course = new courses({
+    title,
+    description,
+    price,
+    imageUrl,
+    creatorId: adminId,
+  });
+
+  const savedCourse = await course.save();
+  res.status(200).json({
+    status: 200,
+    message: "Course created successfully",
+    course_id: savedCourse._id,
+  });
 });
 
-adminRouter.get("/course", (req, res) => {
-  res.send(`Purchase`);
+adminRouter.get("/course/bulk", adminMiddleware, async (req, res) => {
+  const adminId = req.admin_id;
+  const allCourses = await courses.find();
+  res.status(200).json({
+    status: 200,
+    courses: allCourses,
+  });
 });
 
-adminRouter.post("/course", (req, res) => {
-  res.send(`Purchase`);
+adminRouter.put("/course", adminMiddleware, async (req, res) => {
+  const adminId = req.admin_id;
+  const courseId = req.body.courseId;
+  const title = req.body.title;
+  const description = req.body.description;
+  const price = req.body.price;
+  const imageUrl = req.body.imageUrl;
+
+  const course = await courses.findById(courseId);
+  if (!course) {
+    res.status(400).json({
+      status: 400,
+      message: "Course not found",
+    });
+    return;
+  }
+
+  if (course.creatorId.toString() !== adminId) {
+    res.status(400).json({
+      status: 400,
+      message: "You are not authorized to update this course",
+    });
+    return;
+  }
+
+  const updatedCourse = await courses.findByIdAndUpdate(courseId, { title, description, price, imageUrl }, { new: true });
+
+  res.status(200).json({
+    status: 200,
+    message: "Course updated successfully",
+    course_id: updatedCourse._id,
+  });
 });
 
-adminRouter.put("/course/bulk", (req, res) => {
-  res.send(`Purchase`);
-});
 
 export default adminRouter;
