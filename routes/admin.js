@@ -7,19 +7,16 @@ import bcrypt from "bcrypt";
 import admins from "../schemas/adminschema.js";
 
 dotenv.config();
-const secretKey = process.env.JWT_SECRET_KEY;
-
-
+const secretKey = process.env.SECRET_KEY;
 
 adminRouter.post("/signin", async (req, res) => {
-
 const schema = z.object({
   email: z.email(),
   password: z.string().min(8),
 }); 
 
   const user = await admins.findOne({ email: req.body.email });
-  if (!user) {
+  if (!user) { 
     res.send("User not found");
     return;
   }
@@ -31,16 +28,19 @@ const schema = z.object({
   }
 
   const result = schema.safeParse(req.body);
+
   if ( isPasswordValid && result.success) {
     const token = jwt.sign({ id: user._id, email: result.data.email}, secretKey);
-    res.json({
-      status: "success",
+    res.status(200).json({
       message: "User signed in successfully",
       token: token,
     });
 
   } else {
-    res.send(result.error.errors);
+    res.status(400).json({
+      status: 400,
+      message: "Invalid password or email",
+    });
   }
 });
 
@@ -57,7 +57,10 @@ const schema = z.object({
   const user = await admins.findOne({ email: req.body.email });
 
   if (user) {
-    res.send("User already exists");
+    res.status(400).json({
+      status: 400,
+      message: "User already exists",
+    });
     return;
   }else{
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -69,8 +72,15 @@ const schema = z.object({
     });
 
     const savedUser = newUser.save();
-    res.send("User created successfully");
+    res.status(200).json({
+      status: 200,
+      message: "User created successfully",
+    });
   }
+});
+
+adminRouter.get("/", (req, res) => {
+  res.send("Admin dashboard");
 });
 
 adminRouter.get("/course", (req, res) => {

@@ -24,7 +24,6 @@ async function main(){
       console.log("http://localhost:3000");
     });
     console.log("Connected to MongoDB");
-    insertSampleData();
   })
   .catch(err => console.error("MongoDB connection error:", err));
 }
