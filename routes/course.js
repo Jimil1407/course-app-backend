@@ -7,7 +7,7 @@ import purchases from '../schemas/purchaseschema.js';
 courseRouter.post("/purchase", userMiddleware, async (req, res) => {
   const userId = req.user_id;
   const courseId = req.body.courseId;
-  const course =  courses.findById(courseId);
+  const course = await courses.findById(courseId);
   if (!course) {
     res.status(400).json({
       status: 400,

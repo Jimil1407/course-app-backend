@@ -12,18 +12,18 @@ dotenv.config();
 const secretKey = process.env.SECRET_KEY;
 
 adminRouter.post("/signin", async (req, res) => {
-const schema = z.object({
-  email: z.email(),
-  password: z.string().min(8),
-}); 
+  const schema = z.object({
+    email: z.email(),
+    password: z.string().min(8),
+  });
 
   const user = await admins.findOne({ email: req.body.email });
-  if (!user) { 
+  if (!user) {
     res.send("User not found");
     return;
   }
 
-  const isPasswordValid = bcrypt.compare(req.body.password, user.password);
+  const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
   if (!isPasswordValid) {
     res.send("Invalid password");
     return;
@@ -31,13 +31,15 @@ const schema = z.object({
 
   const result = schema.safeParse(req.body);
 
-  if ( isPasswordValid && result.success) {
-    const token = jwt.sign({ id: user._id, email: result.data.email}, secretKey);
+  if (isPasswordValid && result.success) {
+    const token = jwt.sign(
+      { id: user._id, email: result.data.email },
+      secretKey
+    );
     res.status(200).json({
       message: "User signed in successfully",
       token: token,
     });
-
   } else {
     res.status(400).json({
       status: 400,
@@ -47,13 +49,12 @@ const schema = z.object({
 });
 
 adminRouter.post("/signup", async (req, res) => {
-
-const schema = z.object({
-  email: z.email(),
-  password: z.string().min(8),
-  firstname: z.string().min(1),
-  lastname: z.string().min(1),
-}); 
+  const schema = z.object({
+    email: z.email(),
+    password: z.string().min(8),
+    firstname: z.string().min(1),
+    lastname: z.string().min(1),
+  });
 
   const result = schema.safeParse(req.body);
   const user = await admins.findOne({ email: req.body.email });
@@ -64,7 +65,7 @@ const schema = z.object({
       message: "User already exists",
     });
     return;
-  }else{
+  } else {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newAdmin = new admins({
       email: req.body.email,
@@ -138,7 +139,11 @@ adminRouter.put("/course", adminMiddleware, async (req, res) => {
     return;
   }
 
-  const updatedCourse = await courses.findByIdAndUpdate(courseId, { title, description, price, imageUrl }, { new: true });
+  const updatedCourse = await courses.findByIdAndUpdate(
+    courseId,
+    { title, description, price, imageUrl },
+    { new: true }
+  );
 
   res.status(200).json({
     status: 200,
@@ -146,6 +151,5 @@ adminRouter.put("/course", adminMiddleware, async (req, res) => {
     course_id: updatedCourse._id,
   });
 });
-
 
 export default adminRouter;

@@ -5,11 +5,13 @@ import courseRouter from "./routes/course.js";
 import adminRouter from "./routes/admin.js";
 import { insertSampleData } from "./schemas/insert.js";
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config();
 const DB_URL = process.env.DB_URL;
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.use('/user', userRouter);
