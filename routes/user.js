@@ -4,6 +4,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import users from "../schemas/userschema.js";
 import dotenv from "dotenv";  
+import userMiddleware from "../middlewares/user.js";
+import purchases from "../schemas/purchaseschema.js";
+import courses from "../schemas/courseschema.js"; 
 dotenv.config();
 const userRouter = express.Router();
 const secretKey = process.env.USER_SECRET_KEY;
@@ -84,9 +87,15 @@ userRouter.post("/signin", async (req, res) => {
     }
   });
   
-
-userRouter.get("/purchases", (req, res) => {
-  res.send(`Purchase`);
+userRouter.get("/purchases", userMiddleware, async (req, res) => {
+  const user = req.user_id;
+  const purchased = await purchases.find({ userId: user });
+  const courseIds = purchased.map((purchase) => purchase.courseId);
+  const purchasedCourses = await courses.find({ _id: { $in: courseIds } });
+  res.status(200).json({
+    status: 200,
+    courses: purchasedCourses,
+  });
 });
 
 export default userRouter;

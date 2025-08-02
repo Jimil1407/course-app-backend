@@ -26,14 +26,11 @@ courseRouter.post("/purchase", userMiddleware, async (req, res) => {
   });
 });
 
-courseRouter.get("/preview", userMiddleware, async (req, res) => {
-  const userId = req.user_id;
-  const purchasedCourses = await purchases.find({ userId });
-  const courseIds = purchasedCourses.map((purchase) => purchase.courseId);
-  const pcourses = await courses.find({ _id: { $in: courseIds } });
+courseRouter.get("/preview", async (req, res) => {
+  const course = await courses.find();
   res.status(200).json({
     status: 200,
-    courses: pcourses,
+    courses: course,
   });
 });
 
